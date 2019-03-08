@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.PageFactory;
+import pages.CatalogPage;
 import pages.HomePage;
 import pages.LoginPage;
 import pages.RegistrationPage;
@@ -56,7 +57,11 @@ public class EcoFoodTest {
     @Test
     public void addProductsFromCatalogAsAuthUser(){
         successfulLogin();
-        homePage.goToCatalogPage();
+        CatalogPage catalogPage = homePage.goToCatalogPage();
+        assertThat("The Log in button does not redirect to the Inicia Sesión page", catalogPage.getTitle().equals("Nuestros productos"));
+        catalogPage.addFruits();
+        catalogPage.addVegetables();
+        assertThat("The number of products added is not correct",catalogPage.getTotProductsAdded(), Matchers.equalTo(catalogPage.getTotNumProducts()));
     }
 
     @Before
