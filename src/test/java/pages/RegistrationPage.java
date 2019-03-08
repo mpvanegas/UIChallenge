@@ -34,8 +34,6 @@ public class RegistrationPage extends BasePage{
     @FindBy(xpath = "//*[@id='register']")
     private WebElement registerButton;
 
-    private Alert alert;
-
     public RegistrationPage(WebDriver webDriver){
         super(webDriver);
     }
@@ -55,13 +53,5 @@ public class RegistrationPage extends BasePage{
 
         registerButton = waitForElementVisibility(registerButton);
         registerButton.click();
-    }
-
-    public String checkAlert(){
-        alert = new WebDriverWait(webDriver, 5).until(ExpectedConditions.alertIsPresent());
-        webDriver.switchTo().alert();
-        String message = alert.getText();
-        alert.accept();
-        return message;
     }
 }

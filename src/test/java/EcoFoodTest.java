@@ -1,3 +1,4 @@
+import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,8 +35,28 @@ public class EcoFoodTest {
     public void unsuccessfulLogin(){
         LoginPage loginPage = homePage.goToLoginPage();
         assertThat("The Log in button does not redirect to the Inicia Sesión page", loginPage.getTitle().equals("Inicia Sesión"));
-        HomePage homePage = loginPage.fillAndSubmitForm("pvanegas","passsss");
-        assertThat("The user is able to log in with the wrong password. In the home page there is no button to logout",homePage.getLogout().equals("Logout"));
+        loginPage.fillAndSubmitForm("pvanegas","passs");
+        assertThat("The message on the alert is not correct.",loginPage.checkMessage().equals("Usuario y/o Contraseña incorrectos."));
+    }
+
+    @Test
+    public void logout(){
+        successfulLogin();
+        homePage.goToLogout();
+        assertThat("The Logout button does not log out the user. The logout button is still on the page",homePage.getLogin().equals("Iniciar sesión"));
+    }
+
+    @Test
+    public void addProductsFromHomeAsAuthUser(){
+        successfulLogin();
+        homePage.addProducts();
+        assertThat("The number of products added is not correct",homePage.getTotProductsAdded(), Matchers.equalTo(homePage.getNumProducts()));
+    }
+
+    @Test
+    public void addProductsFromCatalogAsAuthUser(){
+        successfulLogin();
+        homePage.goToCatalogPage();
     }
 
     @Before
