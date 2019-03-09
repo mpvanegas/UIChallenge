@@ -64,6 +64,11 @@ public class EcoFoodTest {
         assertThat("The number of products added is not correct",catalogPage.getTotProductsAdded(), Matchers.equalTo(catalogPage.getTotNumProducts()));
     }
 
+    @Test
+    public void verifyShoppingCartRemainsWhenUnauthUser(){
+        
+    }
+
     @Before
     public void setup(){
         webDriver = new ChromeDriver();

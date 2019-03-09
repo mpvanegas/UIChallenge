@@ -8,6 +8,7 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import utils.ModifyProduct;
 
 
 public class HomePage extends BasePage {
@@ -76,24 +77,11 @@ public class HomePage extends BasePage {
     }
 
     public void addProducts() {
-        Actions action = new Actions(webDriver);
-        waitForLoaderInvisibility();
-        Boolean match = true;
-        for (int i = 0; i < productCarousel.findElements(By.xpath(productXpath)).size(); i++) {
-            WebElement product = productCarousel.findElement(By.xpath(productXpath + "[" + (i + 1) + "]"));
-            WebElement addButton = product.findElement(By.xpath(".//div[@class='action-item miso-cart-plus']/a"));
-            action.moveToElement(product).perform();
-            new WebDriverWait(webDriver, 5).until(ExpectedConditions.visibilityOf(addButton));
-            addButton.click();
-        }
+        ModifyProduct.addProducts(webDriver,this,productCarousel,productXpath);
     }
 
     public String getTotProductsAdded() {
-        Actions action = new Actions(webDriver);
-
-        action.moveToElement(cartAddedProds).perform();
-        cartAddedProds = waitForElementVisibility(cartAddedProds);
-        return cartAddedProds.getText();
+        return ModifyProduct.getTotProductsAdded(webDriver,this,cartAddedProds);
     }
 
     public CatalogPage goToCatalogPage() {
