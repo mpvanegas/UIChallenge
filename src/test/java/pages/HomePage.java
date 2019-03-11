@@ -89,4 +89,12 @@ public class HomePage extends BasePage {
         catalogButton.click();
         return PageFactory.initElements(webDriver, CatalogPage.class);
     }
+
+    public String addAllStockOfRandomProduct(){
+        return ModifyProduct.addAllStockOfRandomProduct(webDriver,this,productCarousel,productXpath);
+    }
+
+    public String decreaseQuantityOfProduct(){
+        return ModifyProduct.decreaseQuantityOfProduct(webDriver,this,productCarousel,productXpath);
+    }
 }

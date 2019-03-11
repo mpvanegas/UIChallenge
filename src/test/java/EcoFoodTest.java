@@ -66,7 +66,28 @@ public class EcoFoodTest {
 
     @Test
     public void verifyShoppingCartRemainsWhenUnauthUser(){
-        
+        homePage.addProducts();
+        String addedProdsBeforeAuth = homePage.getTotProductsAdded();
+        successfulLogin();
+        String addedProdsAfterAuth = homePage.getTotProductsAdded();
+        assertThat("The number of products added is not correct",addedProdsBeforeAuth, Matchers.equalTo(addedProdsAfterAuth));
+    }
+
+    @Test
+    public void addAllStockOfProdToCartAsAuthUser(){
+        successfulLogin();
+        String stock = homePage.addAllStockOfRandomProduct();
+        assertThat("The product can not be added to full stock",homePage.getTotProductsAdded(),Matchers.equalTo(stock));
+    }
+
+    @Test
+    public void decreaseQuantityOfProdsAsAuthUser(){
+        successfulLogin();
+        homePage.addProducts();
+        homePage.addProducts();
+        homePage.addProducts();
+        String quantityAdded = homePage.decreaseQuantityOfProduct();
+        assertThat("The product does not decrease the quantity of a product as expected",homePage.decreaseQuantityOfProduct(),Matchers.equalTo("2"));
     }
 
     @Before
