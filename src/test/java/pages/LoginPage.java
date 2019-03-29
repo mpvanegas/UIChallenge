@@ -32,9 +32,9 @@ public class LoginPage extends BasePage {
         usernameInput.sendKeys(username);
         passInput.sendKeys(password);
 
-        loginButton = waitForElementVisibility(loginButton);
+        loginButton = webDriverFacade.waitForElementVisibility(loginButton);
         loginButton.click();
 
-        return PageFactory.initElements(webDriver, HomePage.class);
+        return PageFactory.initElements(webDriverFacade.getWebDriver(), HomePage.class);
     }
 }

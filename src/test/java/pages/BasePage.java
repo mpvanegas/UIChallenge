@@ -1,10 +1,10 @@
 package pages;
 
-import org.openqa.selenium.Alert;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import drivers.WebDriverFacade;
+import org.openqa.selenium.*;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -12,44 +12,107 @@ public class BasePage {
     @FindBy(xpath = "//div[@class='loader']")
     protected WebElement pageLoader;
 
-    @FindBy(xpath = "//div[@class='modal-body'][contains(text(),'Usuario y/o Contraseña incorrectos.')]")
-    protected WebElement message;
+    @FindBy(xpath = "//a[contains(text(),'Registrarse')]")
+    protected WebElement registerButton;
 
     @FindBy(xpath = "//button[@class='btn btn-danger'][contains(text(),'Intentar de Nuevo')]")
     protected WebElement messageButton;
-
-    protected WebDriver webDriver;
+    @FindBy(xpath = "//a[text()[contains(string(),'Iniciar')]]")
+    protected WebElement loginButton;
+    @FindBy(xpath = "//a[contains(text(),'Logout')]")
+    protected WebElement logoutButton;
+    @FindBy(xpath = "//div[@class='container']//a[@class='has-text-color-hover'][contains(text(),'CATÁLOGO')]")
+    protected WebElement catalogButton;
+    @FindBy(xpath = "//div[@class='cart-shopping js-mini-shopcart']")
+    protected WebElement shoppingCartButton;
+    @FindBy(xpath = "//button[@class='au-btn au-btn-primary au-btn-radius btn-checkout']")
+    protected WebElement checkoutButton;
+    @FindBy(xpath = "//div[@class='container']//a[@class='has-text-color-hover'][contains(text(),'PAGO')]")
+    protected WebElement paymentMethodsButton;
+    @FindBy(xpath = "//div[@class='container']//a[@class='has-text-color-hover'][contains(text(),'ORDENES')]")
+    protected WebElement ordersButton;
+    protected WebDriverFacade webDriverFacade;
+    protected By messageTitleBy = By.xpath("//h5[@id='paymentm']");
     protected Alert alert;
+    protected By messageOkButtonBy = By.xpath("//button[@class='btn btn-success']");
+    @FindBy(xpath = "//div[@class='modal-body'][contains(text(),'Usuario y/o Contraseña incorrectos.')]")
+    WebElement message;
 
     public BasePage(WebDriver webDriver) {
-        this.webDriver = webDriver;
-    }
-
-    public Boolean waitForLoaderInvisibility() {
-        return new WebDriverWait(webDriver, 5).until(ExpectedConditions.invisibilityOfElementLocated(By.xpath("//div[@class='loader']")));
-    }
-
-    public WebElement waitForElementVisibility(WebElement element) {
-        new WebDriverWait(webDriver, 5).until(ExpectedConditions.invisibilityOfElementLocated(By.xpath("//div[@class='loader']")));
-        return new WebDriverWait(webDriver, 5).until(ExpectedConditions.visibilityOf(element));
-    }
-
-    public WebElement waitForElementToBeClickable(WebElement element) {
-        return new WebDriverWait(webDriver, 5).until(ExpectedConditions.elementToBeClickable(element));
+        this.webDriverFacade = new WebDriverFacade(webDriver);
     }
 
     public String checkAlert() {
-        alert = new WebDriverWait(webDriver, 5).until(ExpectedConditions.alertIsPresent());
-        webDriver.switchTo().alert();
-        String message = alert.getText();
-        alert.accept();
-        return message;
+        return webDriverFacade.checkAlert();
     }
 
     public String checkMessage() {
-        new WebDriverWait(webDriver, 5).until(ExpectedConditions.visibilityOf(message));
+        new WebDriverWait(webDriverFacade.getWebDriver(), 5).until(ExpectedConditions.visibilityOf(message));
+
         String messagee = message.getText();
         messageButton.click();
+
         return messagee;
+    }
+
+    public RegistrationPage goToRegisterPage() {
+
+        registerButton = webDriverFacade.waitForElementVisibility(registerButton);
+        registerButton.click();
+
+        return PageFactory.initElements(webDriverFacade.getWebDriver(), RegistrationPage.class);
+    }
+
+    public LoginPage goToLoginPage() {
+
+        loginButton = webDriverFacade.waitForElementVisibility(loginButton);
+        ((JavascriptExecutor) webDriverFacade.getWebDriver()).executeScript("arguments[0].scrollIntoView(true);", loginButton);
+        webDriverFacade.waitForElementToBeClickable(loginButton);
+        loginButton.click();
+
+        return PageFactory.initElements(webDriverFacade.getWebDriver(), LoginPage.class);
+    }
+
+    public HomePage goToLogout() {
+        logoutButton = webDriverFacade.waitForElementToBeVisible(logoutButton);
+        webDriverFacade.waitForLoaderInvisibility();
+        ((JavascriptExecutor) webDriverFacade.getWebDriver()).executeScript("arguments[0].scrollIntoView(true);", logoutButton);
+        logoutButton.click();
+        return PageFactory.initElements(webDriverFacade.getWebDriver(), HomePage.class);
+    }
+
+    public CatalogPage goToCatalogPage() {
+        catalogButton = webDriverFacade.waitForElementVisibility(catalogButton);
+        webDriverFacade.waitForLoaderInvisibility();
+        catalogButton.click();
+        return PageFactory.initElements(webDriverFacade.getWebDriver(), CatalogPage.class);
+    }
+
+    public CheckoutPage goToCheckout() {
+        Actions action = new Actions(webDriverFacade.getWebDriver());
+        ((JavascriptExecutor) webDriverFacade.getWebDriver()).executeScript("arguments[0].scrollIntoView(true);", shoppingCartButton);
+        action.moveToElement(shoppingCartButton);
+        webDriverFacade.waitForLoaderInvisibility();
+        webDriverFacade.waitForElementToBeClickable(shoppingCartButton);
+        shoppingCartButton.click();
+
+        ((JavascriptExecutor) webDriverFacade.getWebDriver()).executeScript("arguments[0].scrollIntoView(true);", checkoutButton);
+        action.moveToElement(checkoutButton);
+        webDriverFacade.waitForElementToBeClickable(checkoutButton);
+        checkoutButton.click();
+
+        return PageFactory.initElements(webDriverFacade.getWebDriver(), CheckoutPage.class);
+    }
+
+    public PaymentMethodsPage goToPaymentMethodPage() {
+        paymentMethodsButton = webDriverFacade.waitForElementVisibility(paymentMethodsButton);
+        paymentMethodsButton.click();
+        return PageFactory.initElements(webDriverFacade.getWebDriver(), PaymentMethodsPage.class);
+    }
+
+    public OrdersPage goToOrdersPage() {
+        ordersButton = webDriverFacade.waitForElementVisibility(ordersButton);
+        ordersButton.click();
+        return PageFactory.initElements(webDriverFacade.getWebDriver(), OrdersPage.class);
     }
 }

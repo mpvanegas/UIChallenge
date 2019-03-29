@@ -1,104 +1,200 @@
 import org.hamcrest.Matchers;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.support.PageFactory;
-import pages.CatalogPage;
-import pages.HomePage;
-import pages.LoginPage;
-import pages.RegistrationPage;
+import org.openqa.selenium.WebElement;
+import pages.*;
+import utils.Configs;
+import utils.GenerateData;
+import utils.Hooks;
+
+import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
-public class EcoFoodTest {
-    WebDriver webDriver;
-    HomePage homePage;
+public class EcoFoodTest extends Hooks {
 
     @Test
     public void successfulRegistration(){
         RegistrationPage registrationPage = homePage.goToRegisterPage();
-        assertThat("The Registration button does not redirect to the Registrar Usuario page", registrationPage.getTitle().equals("Registrar Usuario"));
-        registrationPage.fillAndSubmitForm("Paula","Vanegas","pvanegas","pvanegas@mail.com","pass","pass");
+        String name = GenerateData.getRandomAlphabetic();
+        String lastName = GenerateData.getRandomAlphabetic();
+        String username = GenerateData.getRandomAlphaNumeric();
+        String email = GenerateData.getRandomEmail();
+        String password = GenerateData.getRandomAlphaNumeric();
+        registrationPage.fillAndSubmitForm(name, lastName, username, email, password, password);
         assertThat("The message on the alert is not correct. Maybe the registration was not successful or the user already exists",registrationPage.checkAlert().equals("Usuario creado"));
     }
 
     @Test
     public void successfulLogin(){
-        LoginPage loginPage = homePage.goToLoginPage();
-        assertThat("The Log in button does not redirect to the Inicia Sesión page", loginPage.getTitle().equals("Inicia Sesión"));
-        HomePage homePage = loginPage.fillAndSubmitForm("pvanegas","pass");
+        commonFlows.Login();
         assertThat("The user is not able to log in. In the home page there is no button to logout",homePage.getLogout().equals("Logout"));
     }
 
     @Test
     public void unsuccessfulLogin(){
         LoginPage loginPage = homePage.goToLoginPage();
-        assertThat("The Log in button does not redirect to the Inicia Sesión page", loginPage.getTitle().equals("Inicia Sesión"));
-        loginPage.fillAndSubmitForm("pvanegas","passs");
+        String username = Configs.getValueByKey("username");
+        String password = GenerateData.getRandomAlphaNumeric();
+        loginPage.fillAndSubmitForm(username, password);
         assertThat("The message on the alert is not correct.",loginPage.checkMessage().equals("Usuario y/o Contraseña incorrectos."));
     }
 
     @Test
     public void logout(){
-        successfulLogin();
+        commonFlows.Login();
         homePage.goToLogout();
         assertThat("The Logout button does not log out the user. The logout button is still on the page",homePage.getLogin().equals("Iniciar sesión"));
     }
 
     @Test
     public void addProductsFromHomeAsAuthUser(){
-        successfulLogin();
-        homePage.addProducts();
+        commonFlows.Login();
+        homePage.addProductsFromHome();
         assertThat("The number of products added is not correct",homePage.getTotProductsAdded(), Matchers.equalTo(homePage.getNumProducts()));
     }
 
     @Test
     public void addProductsFromCatalogAsAuthUser(){
-        successfulLogin();
+        commonFlows.Login();
         CatalogPage catalogPage = homePage.goToCatalogPage();
-        assertThat("The Log in button does not redirect to the Inicia Sesión page", catalogPage.getTitle().equals("Nuestros productos"));
         catalogPage.addFruits();
         catalogPage.addVegetables();
         assertThat("The number of products added is not correct",catalogPage.getTotProductsAdded(), Matchers.equalTo(catalogPage.getTotNumProducts()));
     }
 
     @Test
-    public void verifyShoppingCartRemainsWhenUnauthUser(){
-        homePage.addProducts();
+    public void verifyShoppingCartRemainsWhenUnauth() {
+        homePage.addProductsFromHome();
         String addedProdsBeforeAuth = homePage.getTotProductsAdded();
-        successfulLogin();
+        commonFlows.Login();
         String addedProdsAfterAuth = homePage.getTotProductsAdded();
         assertThat("The number of products added is not correct",addedProdsBeforeAuth, Matchers.equalTo(addedProdsAfterAuth));
     }
 
     @Test
     public void addAllStockOfProdToCartAsAuthUser(){
-        successfulLogin();
+        commonFlows.Login();
         String stock = homePage.addAllStockOfRandomProduct();
         assertThat("The product can not be added to full stock",homePage.getTotProductsAdded(),Matchers.equalTo(stock));
     }
 
     @Test
     public void decreaseQuantityOfProdsAsAuthUser(){
-        successfulLogin();
-        homePage.addProducts();
-        homePage.addProducts();
-        homePage.addProducts();
-        String quantityAdded = homePage.decreaseQuantityOfProduct();
-        assertThat("The product does not decrease the quantity of a product as expected",homePage.decreaseQuantityOfProduct(),Matchers.equalTo("2"));
+        commonFlows.Login();
+        WebElement product = homePage.addRandomProduct();
+
+        String quantityBeforeDecrease = homePage.getProdQuantityAdded(product);
+        String quantityDecreased = homePage.decreaseQuantityOfProduct(product);
+        String quantityAfterDecrease = homePage.getProdQuantityAdded(product);
+
+        String expectedResult = String.valueOf(Integer.valueOf(quantityBeforeDecrease) - Integer.valueOf(quantityDecreased));
+        if (expectedResult.equals("0")) {
+            expectedResult = "";
+        }
+
+        assertThat("The product does not decrease the quantity of a product as expected", quantityAfterDecrease, Matchers.equalTo(expectedResult));
     }
 
-    @Before
-    public void setup(){
-        webDriver = new ChromeDriver();
-        webDriver.get("http://ecofoodmarket.herokuapp.com/");
-       // webDriver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
-        homePage = PageFactory.initElements(webDriver, HomePage.class);
+    @Test
+    public void emptyCartAsAuthUser() {
+        commonFlows.Login();
+        homePage.addRandomProduct();
+        homePage.addRandomProduct();
+
+        homePage.emptyCart();
+        String quantityAfterEmpty = homePage.getTotProductsAdded();
+
+        assertThat("The cart is not empty after removing all the products", quantityAfterEmpty, Matchers.equalTo("0"));
     }
-    @After
-    public void after(){
-        webDriver.quit();
+
+    @Test
+    public void verifyProdDetAsAuthUser() {
+        commonFlows.Login();
+        WebElement product = homePage.getRandomProd();
+        String prodName = homePage.getProdName(product);
+        String messageTitle = homePage.goToViewDetails(product);
+        assertThat("The details shown do not correspond to the product selected", messageTitle, Matchers.equalTo(prodName));
+    }
+
+    @Test
+    public void successfulCheckoutWithUnregPaymentMethod() {
+        commonFlows.Login();
+        homePage.addRandomProduct();
+        CheckoutPage checkoutPage = homePage.goToCheckout();
+
+        String address = Configs.getValueByKey("address");
+        String zip = Configs.getValueByKey("zip");
+        String phone = Configs.getValueByKey("phone");
+
+        String cardNumber = Configs.getValueByKey("cardNumber");
+        String expDate = Configs.getValueByKey("expDate");
+        String code = Configs.getValueByKey("code");
+
+        checkoutPage.fillAndSubmitPersonalInfo(address, zip, phone);
+        checkoutPage.fillAndSubmitCardInfo(cardNumber, expDate, code);
+        String actualMessage = checkoutPage.checkMessage();
+        assertThat("The checkout was not successful using an unregistered payment method", actualMessage, Matchers.equalTo("Compra Realizada"));
+    }
+
+    @Test
+    public void successfulCheckoutWithRegPaymentMethod() {
+        commonFlows.Login();
+        homePage.addRandomProduct();
+
+        PaymentMethodsPage paymentMethodsPage = homePage.goToPaymentMethodPage();
+        String cardNumber = Configs.getValueByKey("cardNumber");
+        String expDate = Configs.getValueByKey("expDate");
+        String code = Configs.getValueByKey("code");
+        paymentMethodsPage.addPaymentMethod(cardNumber, expDate, code);
+
+        CheckoutPage checkoutPage = paymentMethodsPage.goToCheckout();
+        String address = Configs.getValueByKey("address");
+        String zip = Configs.getValueByKey("zip");
+        String phone = Configs.getValueByKey("phone");
+        checkoutPage.fillAndSubmitPersonalInfo(address, zip, phone);
+        checkoutPage.selectPaymentMethod();
+        String actualMessage = checkoutPage.checkMessage();
+        assertThat("The checkout was not successful using a registered payment method", actualMessage, Matchers.equalTo("Compra Realizada"));
+    }
+
+    @Test
+    public void verifyOrderDetails() {
+        commonFlows.Login();
+        WebElement product1 = homePage.addRandomProduct();
+        String name1 = homePage.getProdName(product1);
+        String quantity1 = homePage.getProdQuantityAdded(product1);
+        String price1 = homePage.getProdPrice(product1);
+
+        WebElement product2 = homePage.addRandomProduct();
+        String name2 = homePage.getProdName(product2);
+        String quantity2 = homePage.getProdQuantityAdded(product2);
+        String price2 = homePage.getProdPrice(product2);
+
+        CheckoutPage checkoutPage = homePage.goToCheckout();
+        String address = Configs.getValueByKey("address");
+        String zip = Configs.getValueByKey("zip");
+        String phone = Configs.getValueByKey("phone");
+        checkoutPage.fillAndSubmitPersonalInfo(address, zip, phone);
+        String cardNumber = Configs.getValueByKey("cardNumber");
+        String expDate = Configs.getValueByKey("expDate");
+        String code = Configs.getValueByKey("code");
+        checkoutPage.fillAndSubmitCardInfo(cardNumber, expDate, code);
+        checkoutPage.checkMessage();
+
+        OrdersPage ordersPage = homePage.goToOrdersPage();
+        WebElement lastOrder = ordersPage.getLastOrder();
+        ordersPage.goToDetails(lastOrder);
+
+        WebElement message = ordersPage.getMessage();
+        List<String> names = ordersPage.productDetails(message, "NAME");
+        List<String> quantities = ordersPage.productDetails(message, "QUANTITY");
+        List<String> prices = ordersPage.productDetails(message, "PRICE");
+
+        assertThat("A product name is missing or does not match", names, Matchers.hasItem(name1));
+        assertThat("A product name is missing or does not match", names, Matchers.hasItem(name2));
+        assertThat("A product quantity is missing or does not match", quantities, Matchers.hasItem(quantity1));
+        assertThat("A product quantity is missing or does not match", quantities, Matchers.hasItem(quantity2));
+        assertThat("A product price is missing or does not match", prices, Matchers.hasItem(price1));
+        assertThat("A product price is missing or does not match", prices, Matchers.hasItem(price2));
     }
 }

@@ -1,15 +1,13 @@
 package pages;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
-import utils.ModifyProduct;
 
-public class CatalogPage extends BasePage {
+public class CatalogPage extends InteractWithProductPage {
 
     @FindBy(xpath = "//div[@class='heading-page-1']/h3")
     private WebElement pageTitle;
@@ -21,14 +19,17 @@ public class CatalogPage extends BasePage {
     private WebElement vegetablesButton;
 
     @FindBy(xpath = "//div[@id='products_by_category']")
-    WebElement productCarousel;
+    private WebElement productCarousel;
 
     @FindBy(xpath = "//div[@id='js-navbar']/div[@class='container']/div[@class='nav-1 nav-2']//span[@class='totals']")
-    WebElement cartAddedProds;
+    private WebElement cartAddedProds;
+
+    @FindBy(id = "category_name")
+    private WebElement categoryName;
 
 
-    String productXpath = "//div[@class='col-md-4 col-sm-6 product-1 miso-prd-holder']";
-    String totNumProducts = "0";
+    private String productXpath = "//div[@class='col-md-4 col-sm-6 product-1 miso-prd-holder']";
+    private String totNumProducts = "0";
 
     public CatalogPage(WebDriver webDriver){
         super(webDriver);
@@ -39,27 +40,28 @@ public class CatalogPage extends BasePage {
     }
 
     public void addFruits(){
-        waitForElementVisibility(fruitsButton);
+        webDriverFacade.waitForElementVisibility(fruitsButton);
         fruitsButton.click();
-        waitForLoaderInvisibility();
+        webDriverFacade.waitForLoaderInvisibility();
 
-        ModifyProduct.addProducts(webDriver,this,productCarousel,productXpath);
+        addProducts(productCarousel, productXpath);
 
         totNumProducts = String.valueOf(Integer.parseInt(totNumProducts) + Integer.parseInt(getNumProducts()));
     }
 
     public void addVegetables() {
-        waitForElementVisibility(vegetablesButton);
-        vegetablesButton.click();
-        waitForLoaderInvisibility();
+        webDriverFacade.waitForElementVisibility(vegetablesButton);
 
-        ModifyProduct.addProducts(webDriver,this,productCarousel,productXpath);
+        Actions action = new Actions(webDriverFacade.getWebDriver());
+        ((JavascriptExecutor) webDriverFacade.getWebDriver()).executeScript("arguments[0].scrollIntoView(true);", categoryName);
+        action.moveToElement(vegetablesButton).perform();
+
+        vegetablesButton.click();
+        webDriverFacade.waitForLoaderInvisibility();
+
+        addProducts(productCarousel, productXpath);
 
         totNumProducts = String.valueOf(Integer.parseInt(totNumProducts) + Integer.parseInt(getNumProducts()));
-    }
-
-    public String getTotProductsAdded() {
-        return ModifyProduct.getTotProductsAdded(webDriver,this,cartAddedProds);
     }
 
     public String getNumProducts(){

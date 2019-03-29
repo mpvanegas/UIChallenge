@@ -1,11 +1,8 @@
 package pages;
 
-import org.openqa.selenium.Alert;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class RegistrationPage extends BasePage{
 
@@ -30,7 +27,6 @@ public class RegistrationPage extends BasePage{
     @FindBy(id = "pass2")
     private WebElement confirmPassInput;
 
-   // @FindBy(id = "register")
     @FindBy(xpath = "//*[@id='register']")
     private WebElement registerButton;
 
@@ -42,16 +38,16 @@ public class RegistrationPage extends BasePage{
         return pageTitle.getText();
     }
 
-    public void fillAndSubmitForm(String name, String lastName, String username, String email, String password, String confirmCassword){
+    public void fillAndSubmitForm(String name, String lastName, String username, String email, String password, String confirmPassword) {
 
         nameInput.sendKeys(name);
         lastNameInput.sendKeys(lastName);
         usernameInput.sendKeys(username);
         emailInput.sendKeys(email);
         passInput.sendKeys(password);
-        confirmPassInput.sendKeys(confirmCassword);
+        confirmPassInput.sendKeys(confirmPassword);
 
-        registerButton = waitForElementVisibility(registerButton);
+        registerButton = webDriverFacade.waitForElementVisibility(registerButton);
         registerButton.click();
     }
 }
