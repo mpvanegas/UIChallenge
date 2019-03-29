@@ -1,7 +1,6 @@
 package pages;
 
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
@@ -59,7 +58,7 @@ public class OrdersPage extends BasePage {
         webDriverFacade.waitForLoaderInvisibility();
 
         WebElement viewDetailsButton = order.findElement(viewDetailsButtonBy);
-        ((JavascriptExecutor) webDriverFacade.getWebDriver()).executeScript("arguments[0].scrollIntoView(true);", viewDetailsButton);
+        //  ((JavascriptExecutor) webDriverFacade.getWebDriver()).executeScript("arguments[0].scrollIntoView(true);", viewDetailsButton);
         action.moveToElement(viewDetailsButton);
         webDriverFacade.waitForElementToBeClickable(viewDetailsButton);
         viewDetailsButton.click();

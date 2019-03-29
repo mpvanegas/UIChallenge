@@ -1,3 +1,5 @@
+package runners;
+
 import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.openqa.selenium.WebElement;

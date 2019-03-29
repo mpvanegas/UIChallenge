@@ -21,7 +21,6 @@ import java.util.Date;
 
 public class Hooks {
 
-    //    protected DriverManager driverManager;
     protected WebDriver webDriver;
 
     @Rule
@@ -32,7 +31,6 @@ public class Hooks {
             Date date = new Date();
             String test = description.getMethodName();
             System.out.println(test);
-//            File srcFile = ((TakesScreenshot) driverManager.getWebDriver()).getScreenshotAs(OutputType.FILE);
             File srcFile = ((TakesScreenshot) webDriver).getScreenshotAs(OutputType.FILE);
             File targetFile = new File("failedTests/" + test + "_" + dateFormat.format(date) + ".png");
             try {
@@ -44,7 +42,6 @@ public class Hooks {
 
         @Override
         protected void finished(Description description) {
-//            driverManager.getWebDriver().quit();
             webDriver.quit();
         }
     };
@@ -53,8 +50,7 @@ public class Hooks {
 
     @Before
     public void setup() {
-//        driverManager = DriverManagerFactory.getManager(Configs.getValueByKey("browser"));
-//        WebDriver webDriver = driverManager.createWebDriver();
+
         webDriver = DriverFactory.createDriver(Configs.getValueByKey("browser"));
 
         webDriver.get("http://ecofoodmarket.herokuapp.com/");

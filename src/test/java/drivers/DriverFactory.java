@@ -2,6 +2,7 @@ package drivers;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 
 public class DriverFactory {
@@ -11,7 +12,7 @@ public class DriverFactory {
 
         switch (browser) {
             case "chrome":
-                webDriver = new ChromeDriver();
+                webDriver = new ChromeDriver(new ChromeOptions().setHeadless(true));
                 break;
             case "firefox":
                 webDriver = new FirefoxDriver();

@@ -21,7 +21,7 @@ public class BasePage {
     protected WebElement loginButton;
     @FindBy(xpath = "//a[contains(text(),'Logout')]")
     protected WebElement logoutButton;
-    @FindBy(xpath = "//div[@class='container']//a[@class='has-text-color-hover'][contains(text(),'CATÁLOGO')]")
+    @FindBy(xpath = "//div[@class='container']//a[@class='has-text-color-hover'][contains(text(),'LOGO')]")
     protected WebElement catalogButton;
     @FindBy(xpath = "//div[@class='cart-shopping js-mini-shopcart']")
     protected WebElement shoppingCartButton;
@@ -35,7 +35,7 @@ public class BasePage {
     protected By messageTitleBy = By.xpath("//h5[@id='paymentm']");
     protected Alert alert;
     protected By messageOkButtonBy = By.xpath("//button[@class='btn btn-success']");
-    @FindBy(xpath = "//div[@class='modal-body'][contains(text(),'Usuario y/o Contraseña incorrectos.')]")
+    @FindBy(xpath = "//div[@class='modal-body'][contains(text(),' incorrectos.')]")
     WebElement message;
 
     public BasePage(WebDriver webDriver) {

@@ -17,7 +17,7 @@ public class InteractWithProductPage extends BasePage {
     @FindBy(xpath = "//div[@id='products-carousel']")
     protected WebElement productCarousel;
 
-    protected String productXpath = "//div[@class='col-md-3 col-xs-6 product-1 miso-prd-holder']";
+    protected String productXpath = ".//div[@class='col-md-3 col-xs-6 product-1 miso-prd-holder']";
     protected By addButtonBy = By.xpath(".//div[@class='action-item miso-cart-plus']/a");
     protected By stockBy = By.xpath(".//div[@class='miso-prd-total']");
     protected By productQuantityBy = By.xpath(".//div[@class='miso-prd-qty']");
@@ -97,7 +97,7 @@ public class InteractWithProductPage extends BasePage {
 
         webDriverFacade.waitForElementToBeVisible(productCarousel);
         webDriverFacade.waitForLoaderInvisibility();
-        webDriverFacade.waitForElementToBeVisible(productCarousel);
+        webDriverFacade.waitForElementToBeVisible(productCarousel.findElement(By.xpath(productXpath)));
 
         int index = rand.nextInt(productCarousel.findElements(By.xpath(productXpath)).size()) + 1;
 
@@ -108,8 +108,8 @@ public class InteractWithProductPage extends BasePage {
 
         webDriverFacade.waitForElementToBeVisible(addButton);
 
-        //  String stock = product.findElement(By.xpath(".//div[@class='miso-prd-total']")).getText();
-        String stock = "1";
+        // String stock = product.findElement(By.xpath(".//div[@class='miso-prd-total']")).getText();
+        String stock = "2";
         int quantityToAdd = rand.nextInt(Integer.valueOf(stock)) + 1;
 
         for (int i = 1; i <= quantityToAdd & i <= Integer.valueOf(stock); i++) {
@@ -236,14 +236,14 @@ public class InteractWithProductPage extends BasePage {
 
         webDriverFacade.waitForElementToBeClickable(detailsButton);
 
-
         detailsButton.click();
-
         webDriverFacade.waitForLoaderInvisibility();
+
         WebElement goBackButton = webDriverFacade.getWebDriver().findElement(goBackButtonBy);
         webDriverFacade.waitForElementToBeClickable(goBackButton);
 
+        String pageTitle = webDriverFacade.getWebDriver().getTitle();
         goBackButton.click();
-        return webDriverFacade.getWebDriver().getTitle();
+        return pageTitle;
     }
 }

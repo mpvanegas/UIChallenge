@@ -44,7 +44,7 @@ public class CheckoutPage extends BasePage {
     private WebElement paymentMethods;
 
     private By countryOptionColombiaBy = By.xpath(".//option[contains(text(),'Colombia')]");
-    private By dptoOptionBogotaBy = By.xpath(".//option[contains(text(),'Bogotá D.C')]");
+    private By dptoOptionBogotaBy = By.xpath(".//option[contains(text(),'Bogot')]");
     private By radioButtonSelectBy = By.xpath(".//input");
     private By messageTitleBy = By.xpath("//h5[@id='paymentm']");
     private By messageOkButtonBy = By.xpath("//button[@class='btn btn-success']");
